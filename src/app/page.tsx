@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Scanner from "@/components/Scanner";
+import LoginForm from "@/components/LoginForm";
 import {
   useMutation,
   QueryClient,
@@ -18,25 +19,40 @@ type SessionResponse = {
   phoneNumber: string;
 };
 
-function SessionInfo({ session }: { session: SessionResponse }) {
+function SessionInfo({
+  session,
+  onClear,
+}: {
+  session: SessionResponse;
+  onClear: () => void;
+}) {
   return (
-    <div className="max-w-md mx-auto mt-6 p-6 rounded-xl shadow-lg border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-200 space-y-4">
+    <div className="max-w-md mx-auto mt-2 p-2 bg-neuf-black space-y-4">
+      <div className="flex justify-center">
+        <button
+          onClick={onClear}
+          className="w-8 h-8 bg-red-600 text-white rounded-full hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 flex items-center justify-center font-bold text-lg transition-colors duration-200"
+          aria-label="Clear session"
+        >
+          ×
+        </button>
+      </div>
       <div className="flex flex-col items-center">
         <Image
           src={`data:image/jpeg;base64,${session.documentPhoto}`}
           alt="Document"
           width={200}
           height={261}
-          className="w-40 h-50 object-cover rounded-lg mb-4 border border-gray-300 shadow"
+          className="w-40 h-50 object-cover rounded-lg mb-4 border border-black-300 shadow"
           unoptimized
         />
         {(session.firstName || session.lastName) && (
-          <div className="text-xl font-bold text-gray-800">
+          <div className="text-xl font-bold text-white">
             {[session.firstName, session.lastName].filter(Boolean).join(" ")}
           </div>
         )}
         {typeof session.age === "number" && (
-          <div className="text-3xl font-extrabold text-blue-700 mt-2">
+          <div className="text-3xl font-extrabold text-white mt-2">
             {session.age} år
           </div>
         )}
@@ -57,7 +73,16 @@ async function lookupSession(sessionId: string) {
 function HomeInner() {
   const [session, setSession] = useState<SessionResponse | null>(null);
   const [scannedCodes, setScannedCodes] = useState<Set<string>>(new Set());
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const pendingCodeRef = useRef<string | null>(null);
+
+  // check for valid session on mount
+  useEffect(() => {
+    fetch("/api/session")
+      .then((res) => res.json())
+      .then((data) => setIsAuthenticated(data.authenticated))
+      .catch(() => setIsAuthenticated(false));
+  }, []);
 
   const mutation = useMutation({
     mutationFn: lookupSession,
@@ -91,10 +116,52 @@ function HomeInner() {
     mutation.mutate(decodedText);
   };
 
+  const handleClearSession = () => {
+    setSession(null);
+    setScannedCodes(new Set());
+  };
+
+  // const handleLogout = async () => {
+  //   try {
+  //     await fetch("/api/logout", { method: "POST" });
+  //     setIsAuthenticated(false);
+  //     setSession(null);
+  //     setScannedCodes(new Set());
+  //   } catch {
+  //     alert("Noe gikk galt ved utlogging");
+  //   }
+  // };
+
+  if (isAuthenticated === null) {
+    return (
+      <div className="text-center mt-20 text-white bg-neuf-black min-h-screen">
+        Laster...
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="bg-neuf-black min-h-screen">
+        <LoginForm onLogin={() => setIsAuthenticated(true)} />
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <div className="bg-neuf-black min-h-screen">
+      {/* <div className="flex justify-end p-4">
+        <button
+          onClick={handleLogout}
+          className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+        >
+          Logg ut
+        </button>
+      </div> */}
       <Scanner onScan={handleScan} />
-      {session && <SessionInfo session={session} />}
+      {session && (
+        <SessionInfo session={session} onClear={handleClearSession} />
+      )}
     </div>
   );
 }

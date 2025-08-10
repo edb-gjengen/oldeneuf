@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getIronSession } from "iron-session";
+import { sessionOptions, SessionData } from "@/lib/auth";
 
 type MerchantUserResponse = {
   firstName: string;
@@ -59,6 +61,19 @@ async function fetchOidcToken(): Promise<string> {
 
 export async function POST(req: NextRequest) {
   try {
+    // require valid session
+    const session = await getIronSession<SessionData>(
+      req,
+      NextResponse.next(),
+      sessionOptions
+    );
+    if (!session.authenticated) {
+      return NextResponse.json(
+        { error: "Not authenticated" },
+        { status: 401 }
+      );
+    }
+
     const token = await fetchOidcToken();
 
     const apiBase = process.env.ID_CARD_API_BASE_URL;
