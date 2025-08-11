@@ -68,10 +68,7 @@ export async function POST(req: NextRequest) {
       sessionOptions
     );
     if (!session.authenticated) {
-      return NextResponse.json(
-        { error: "Not authenticated" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
     const token = await fetchOidcToken();
@@ -81,7 +78,7 @@ export async function POST(req: NextRequest) {
     const sessionUrl = apiBase + "/api/merchant/session";
 
     // parse sessionId from request body, handle missing/invalid JSON
-    let body: any;
+    let body: { sessionId?: unknown } | undefined;
     try {
       body = await req.json();
     } catch {
@@ -124,7 +121,11 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "An unexpected error occurred" },
+      { status: 500 }
+    );
   }
 }

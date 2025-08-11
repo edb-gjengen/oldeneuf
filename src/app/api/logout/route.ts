@@ -8,10 +8,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Logout failed" },
-      { status: 500 }
-    );
+    console.error(error);
+    return NextResponse.json({ error: "Logout failed" }, { status: 500 });
   }
-}
 }
