@@ -28,34 +28,34 @@ function SessionInfo({
 }) {
   return (
     <div className="max-w-md mx-auto mt-2 p-2 bg-neuf-black space-y-4">
-      <div className="flex justify-center">
+      <div className="flex items-center relative bg-white rounded-lg overflow-hidden">
         <button
           onClick={onClear}
-          className="w-8 h-8 bg-red-600 text-white rounded-full hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 flex items-center justify-center font-bold text-lg transition-colors duration-200"
+          className="w-10 h-10 absolute top-2 right-2 bg-red-600 text-white rounded-full hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 flex items-center justify-center font-bold text-lg transition-colors duration-200"
           aria-label="Clear session"
         >
-          ×
+          &times;
         </button>
-      </div>
-      <div className="flex flex-col items-center">
         <Image
           src={`data:image/jpeg;base64,${session.documentPhoto}`}
           alt="Document"
           width={200}
           height={261}
-          className="w-40 h-50 object-cover rounded-lg mb-4 border border-black-300 shadow"
+          className="w-40 h-50 object-cover border border-black-300 shadow"
           unoptimized
         />
-        {(session.firstName || session.lastName) && (
-          <div className="text-xl font-bold text-white">
-            {[session.firstName, session.lastName].filter(Boolean).join(" ")}
-          </div>
-        )}
-        {typeof session.age === "number" && (
-          <div className="text-3xl font-extrabold text-white mt-2">
-            {session.age} år
-          </div>
-        )}
+        <div className="py-4 px-4">
+          {(session.firstName || session.lastName) && (
+            <div className="text-xl font-bold">
+              {[session.firstName, session.lastName].filter(Boolean).join(" ")}
+            </div>
+          )}
+          {typeof session.age === "number" && (
+            <div className="text-5xl font-extrabold text-neuf-black mt-2">
+              {session.age} år
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -290,7 +290,7 @@ export default function Scanner({ onScan }: ScannerProps) {
             margin-left: 0 !important;
             margin-right: 0 !important;
             margin-top: 0 !important;
-            height: 50vh !important;
+            height: 55dvh !important;
             background: #000;
             border-radius: 0 !important;
             display: flex;
@@ -299,7 +299,7 @@ export default function Scanner({ onScan }: ScannerProps) {
           }
           .video-container-responsive video {
             width: 100vw !important;
-            height: 50vh !important;
+            height: 55dvh !important;
             object-fit: cover;
             border-radius: 0 !important;
             border: none !important;
