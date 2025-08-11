@@ -70,6 +70,20 @@ async function lookupSession(sessionId: string) {
   return res.json();
 }
 
+declare global {
+  interface Window {
+    umami?: {
+      track: (eventName: string, eventData?: Record<string, unknown>) => void;
+    };
+  }
+}
+
+const trackEvent = (eventName: string, eventData?: Record<string, unknown>) => {
+  if (typeof window !== "undefined" && window.umami) {
+    window.umami.track(eventName, eventData);
+  }
+};
+
 function HomeInner() {
   const [session, setSession] = useState<SessionResponse | null>(null);
   const [scannedCodes, setScannedCodes] = useState<Set<string>>(new Set());
@@ -91,6 +105,7 @@ function HomeInner() {
       if (data && typeof data.age === "number") {
         setSession(data);
         setScannedCodes((prev) => new Set(prev).add(variables));
+        trackEvent("id-check");
       }
       pendingCodeRef.current = null;
     },
